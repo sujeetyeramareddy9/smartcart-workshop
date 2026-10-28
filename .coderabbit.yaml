@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: en-US
+
+reviews:
+  profile: assertive
+  high_level_summary: true
+  sequence_diagrams: true
+  poem: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - ".*"
+
+  path_instructions:
+    - path: "src/app/**"
+      instructions: >
+        Angular 22 zoneless app. Prefer signals/computed, standalone components
+        and inject(). Flag window/document/localStorage used without
+        isPlatformBrowser, because the app is server-side rendered.
+    - path: "src/server/**"
+      instructions: >
+        Runs in a Cloudflare Worker. No Node-only APIs, validate all request
+        input, never leak API keys or raw LLM errors, and treat LLM tool
+        arguments as untrusted.
+    - path: "**/*.spec.ts"
+      instructions: >
+        Vitest. Deterministic tests only (no real network or Gemini calls),
+        meaningful assertions and edge cases.
+    - path: "e2e/**"
+      instructions: >
+        Playwright. getByTestId/getByRole, web-first assertions, no fixed
+        timeouts, mock provider only.
+
+  pre_merge_checks:
+    title:
+      mode: warning
+      requirements: >
+        Title must use Conventional Commits format: feat:, fix:, test:, chore:,
+        docs:, or ci: prefix.
+    custom_checks:
+      - name: "Tests for new logic"
+        mode: warning
+        instructions: >
+          Fail when src/ logic files are changed without a corresponding
+          *.spec.ts or e2e test file being added or modified.
+
+  tools:
+    eslint:
+      enabled: true
+    gitleaks:
+      enabled: true
+    actionlint:
+      enabled: true
+
+code_generation:
+  unit_tests:
+    path_instructions:
+      - path: "src/**/*.ts"
+        instructions: >
+          Use Vitest globals, TestBed for Angular services and components, and
+          fakes for fetch and LLM clients.
+
+chat:
+  auto_reply: true
